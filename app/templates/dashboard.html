@@ -1,0 +1,315 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Analytics Dashboard | Airline Sentiment Dashboard{% endblock %}
+
+{% block content %}
+<section class="hero hero--analytics">
+  <div class="hero__content">
+    <h1>Analytics Dashboard</h1>
+    <p>Interact with sentiment distributions, monitor airline performance, and track the health of the predictive model.</p>
+  </div>
+  <div class="hero__cta">
+    <a href="{{ url_for('main.index') }}" class="btn btn-outline">Return to prediction</a>
+  </div>
+</section>
+
+<section class="metrics-row">
+<section class="card model-card">
+  <h2>Model Information</h2>
+  <div class="model-info-grid">
+    <div class="info-item">
+      <h3>Current Model</h3>
+      {% if current_model %}
+        <p><strong>Version:</strong> v{{ current_model.version_number }}</p>
+        <p><strong>Accuracy:</strong> <span id="live-accuracy">{{ (current_model.accuracy * 100)|round(2) if current_model.accuracy else (model_accuracy * 100)|round(2) }}%</span></p>
+        <p><strong>Training Samples:</strong> {{ current_model.training_samples }}</p>
+        <p><strong>Created:</strong> {{ current_model.created_at.strftime('%Y-%m-%d') if current_model.created_at else 'N/A' }}</p>
+      {% else %}
+        <p>Version 1 (Original)</p>
+        <p><strong>Accuracy:</strong> <span id="live-accuracy">{{ (model_accuracy * 100)|round(2) }}%</span></p>
+      {% endif %}
+    </div>
+    <div class="info-item">
+      <h3>Ready for Training</h3>
+      <p class="big-number">{{ approved_training_count }}</p>
+      <p class="label">Approved reviews with true sentiment</p>
+      <p><strong>Pending Reviews:</strong> <span id="pending-count">--</span></p>
+    </div>
+  </div>
+
+  {% if all_versions and all_versions|length > 0 %}
+  <div class="version-history">
+    <h3>Training History</h3>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Version</th>
+          <th>Accuracy</th>
+          <th>Samples</th>
+          <th>Created</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for version in all_versions %}
+        <tr>
+          <td>v{{ version.version_number }}</td>
+          <td>{{ (version.accuracy * 100)|round(2) }}%</td>
+          <td>{{ version.training_samples }}</td>
+          <td>{{ version.created_at.strftime('%Y-%m-%d') if version.created_at else 'N/A' }}</td>
+          <td>
+            {% if version.is_active %}
+            <span class="badge-active">Active</span>
+            {% else %}
+            <span class="badge-inactive">Inactive</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</section>
+
+  <article class="stat-card">
+    <span class="stat-card__label">Model Accuracy</span>
+    <span class="stat-card__value">{% if model_accuracy %}{{ (model_accuracy * 100)|round(2) }}%{% else %}â€”{% endif %}</span>
+    <span class="stat-card__hint">Current classifier: {{ model_name|upper }}</span>
+  </article>
+  <article class="stat-card">
+    <span class="stat-card__label">Top Mentioned Airline</span>
+    <span class="stat-card__value">{{ top_airline.airline if top_airline else '' }}</span>
+    {% if top_airline %}<span class="stat-card__hint">{{ top_airline.tweet_count }} tweets in sample</span>{% endif %}
+  </article>
+  <article class="stat-card">
+    <span class="stat-card__label">Most Cited Negative Reason</span>
+    <span class="stat-card__value">{{ top_negative_reason.negativereason if top_negative_reason else '' }}</span>
+    {% if top_negative_reason %}<span class="stat-card__hint">{{ top_negative_reason.count }} mentions</span>{% endif %}
+  </article>
+  <article class="stat-card">
+    <span class="stat-card__label">Negative Sentiment Share</span>
+    <span class="stat-card__value">{% if negative_share is not none %}{{ negative_share|round(2) }}%{% else %}â€”{% endif %}</span>
+    <span class="stat-card__hint">Across {{ sentiment_summary|length }} sentiment categories</span>
+  </article>
+</section>
+
+<section class="dashboard-grid">
+  <article class="panel panel--wide">
+    <header class="panel__header">
+      <h2>Sentiment Composition</h2>
+      <p>Explore the overall breakdown and switch to the interactive chart for deeper inspection.</p>
+    </header>
+    <div class="panel__body panel__body--split">
+      <img src="{{ visuals.sentiment }}" alt="Sentiment distribution chart" class="viz-image" />
+      <iframe src="{{ visuals.sentiment_html }}" title="Interactive Sentiment Chart" loading="lazy"></iframe>
+    </div>
+  </article>
+
+  <article class="panel">
+    <header class="panel__header">
+      <h2>Airline Sentiment Heatmap</h2>
+      <p>Compare sentiment counts across carriers using the processed dataset.</p>
+    </header>
+    <img src="{{ visuals.heatmap }}" alt="Airline sentiment heatmap" class="viz-image" />
+  </article>
+
+  <article class="panel">
+    <header class="panel__header">
+      <h2>Timeline of Tweets</h2>
+      <p>An overview of tweet volume surges during the sample period.</p>
+    </header>
+    <img src="{{ visuals.timeline }}" alt="Tweet volume timeline" class="viz-image" />
+  </article>
+
+  <article class="panel panel--wide">
+    <header class="panel__header">
+      <h2>Top Negative Drivers</h2>
+      <p>Visual ranking and tabular summary of the leading pain points.</p>
+    </header>
+    <div class="panel__body panel__body--split">
+      <img src="{{ visuals.negative }}" alt="Top negative reasons" class="viz-image" />
+      <table class="data-table data-table--compact">
+        <thead>
+          <tr><th>Reason</th><th>Count</th></tr>
+        </thead>
+        <tbody>
+          {% for row in negative_reasons %}
+            <tr><td>{{ row.negativereason }}</td><td>{{ row.count }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="panel">
+    <header class="panel__header">
+      <h2>Model Diagnostics</h2>
+      <p>Confusion matrix summarising prediction accuracy per class.</p>
+    </header>
+    <img src="{{ visuals.model_cm }}" alt="Model confusion matrix" class="viz-image" />
+  </article>
+
+  <article class="panel">
+    <header class="panel__header">
+      <h2>Lexical Spotlight</h2>
+      <p>The most frequent tokens appearing in negative tweets.</p>
+    </header>
+    <img src="{{ visuals.wordcloud }}" alt="Negative sentiment word cloud" class="viz-image" />
+  </article>
+</section>
+{% endblock %}
+<style>
+.model-card {
+  margin: 20px 0;
+}
+
+.model-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.info-item {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.big-number {
+  font-size: 3em;
+  font-weight: bold;
+  color: #0a3d62;
+  margin: 10px 0;
+}
+
+.label {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.version-history {
+  margin-top: 30px;
+}
+
+.badge-active {
+  background-color: #28a745;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+.badge-inactive {
+  background-color: #6c757d;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+}
+</style>
+<script>
+function updateLiveMetrics() {
+  fetch('{{ url_for('main.live_metrics') }}')
+    .then(response => response.json())
+    .then(data => {
+      if (typeof data.accuracy === 'number') {
+        const accuracyEl = document.getElementById('live-accuracy');
+        if (accuracyEl) {
+          accuracyEl.textContent = (data.accuracy * 100).toFixed(2) + '%';
+        }
+      }
+      if (typeof data.pending_count === 'number') {
+        const pendingEl = document.getElementById('pending-count');
+        if (pendingEl) {
+          pendingEl.textContent = data.pending_count;
+        }
+      }
+    })
+    .catch(() => {});
+}
+
+updateLiveMetrics();
+setInterval(updateLiveMetrics, 30000);
+</script>
+
+
+<style>
+.model-card {
+  margin: 20px 0;
+}
+
+.model-info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.info-item {
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.big-number {
+  font-size: 3em;
+  font-weight: bold;
+  color: #0a3d62;
+  margin: 10px 0;
+}
+
+.label {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.version-history {
+  margin-top: 30px;
+}
+
+.badge-active {
+  background-color: #28a745;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: bold;
+}
+
+.badge-inactive {
+  background-color: #6c757d;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.85em;
+}
+</style>
+<script>
+function updateLiveMetrics() {
+  fetch('{{ url_for('main.live_metrics') }}')
+    .then(response => response.json())
+    .then(data => {
+      if (data.accuracy !== undefined) {
+        const accuracyEl = document.getElementById('live-accuracy');
+        if (accuracyEl) {
+          accuracyEl.textContent = (data.accuracy * 100).toFixed(2) + '%';
+        }
+      }
+      if (data.pending_count !== undefined) {
+        const pendingEl = document.getElementById('pending-count');
+        if (pendingEl) {
+          pendingEl.textContent = data.pending_count;
+        }
+      }
+    })
+    .catch(() => {
+      /* noop */
+    });
+}
+
+updateLiveMetrics();
+setInterval(updateLiveMetrics, 30000);
+</script>

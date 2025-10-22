@@ -1,0 +1,59 @@
+{
+  "model_name": "complement_nb",
+  "accuracy": 0.7588094423537461,
+  "labels": [
+    "negative",
+    "neutral",
+    "positive"
+  ],
+  "classification_report": {
+    "negative": {
+      "precision": 0.8554752640355753,
+      "recall": 0.8391494002181025,
+      "f1-score": 0.847233691164327,
+      "support": 1834.0
+    },
+    "neutral": {
+      "precision": 0.5800711743772242,
+      "recall": 0.5283630470016207,
+      "f1-score": 0.553011026293469,
+      "support": 617.0
+    },
+    "positive": {
+      "precision": 0.6281138790035588,
+      "recall": 0.7478813559322034,
+      "f1-score": 0.6827852998065764,
+      "support": 472.0
+    },
+    "accuracy": 0.7588094423537461,
+    "macro avg": {
+      "precision": 0.6878867724721194,
+      "recall": 0.7051312677173088,
+      "f1-score": 0.6943433390881242,
+      "support": 2923.0
+    },
+    "weighted avg": {
+      "precision": 0.7606278822174725,
+      "recall": 0.7588094423537461,
+      "f1-score": 0.7585730599819193,
+      "support": 2923.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      1539,
+      185,
+      110
+    ],
+    [
+      192,
+      326,
+      99
+    ],
+    [
+      68,
+      51,
+      353
+    ]
+  ]
+}

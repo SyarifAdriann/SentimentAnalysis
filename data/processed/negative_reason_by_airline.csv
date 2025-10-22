@@ -1,0 +1,61 @@
+airline,negativereason,count
+US Airways,Customer Service Issue,811
+American,Customer Service Issue,768
+United,Customer Service Issue,681
+United,Late Flight,525
+US Airways,Late Flight,453
+Southwest,Customer Service Issue,391
+United,Can't Tell,379
+United,Lost Luggage,269
+Delta,Late Flight,269
+American,Late Flight,249
+American,Cancelled Flight,246
+US Airways,Can't Tell,246
+United,Bad Flight,216
+Delta,Customer Service Issue,199
+American,Can't Tell,198
+US Airways,Cancelled Flight,189
+Delta,Can't Tell,186
+United,Cancelled Flight,181
+United,Flight Attendant Complaints,168
+Southwest,Cancelled Flight,162
+Southwest,Can't Tell,159
+US Airways,Lost Luggage,154
+Southwest,Late Flight,152
+American,Lost Luggage,149
+United,Flight Booking Problems,144
+American,Flight Booking Problems,130
+US Airways,Flight Attendant Complaints,123
+US Airways,Flight Booking Problems,122
+US Airways,Bad Flight,104
+Southwest,Lost Luggage,90
+Southwest,Bad Flight,90
+American,Bad Flight,87
+American,Flight Attendant Complaints,87
+Delta,Bad Flight,64
+Southwest,Flight Booking Problems,61
+Virgin America,Customer Service Issue,60
+Delta,Flight Attendant Complaints,60
+Delta,Lost Luggage,57
+Delta,Cancelled Flight,51
+US Airways,longlines,50
+United,longlines,48
+Delta,Flight Booking Problems,44
+Southwest,Flight Attendant Complaints,38
+American,longlines,34
+Southwest,longlines,29
+Virgin America,Flight Booking Problems,28
+Virgin America,Can't Tell,22
+United,Damaged Luggage,22
+Virgin America,Bad Flight,19
+Virgin America,Cancelled Flight,18
+Virgin America,Late Flight,17
+Southwest,Damaged Luggage,14
+Delta,longlines,14
+American,Damaged Luggage,12
+Delta,Damaged Luggage,11
+US Airways,Damaged Luggage,11
+Virgin America,Lost Luggage,5
+Virgin America,Flight Attendant Complaints,5
+Virgin America,Damaged Luggage,4
+Virgin America,longlines,3

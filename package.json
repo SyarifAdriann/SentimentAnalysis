@@ -1,0 +1,16 @@
+{
+  "name": "airline-sentiment-dashboard",
+  "version": "1.0.0",
+  "description": "Local analytics dashboard with sentiment prediction, MySQL logging, and automated browser tests.",
+  "main": "tests/puppeteer/run-tests.js",
+  "scripts": {
+    "test": "node tests/puppeteer/run-tests.js",
+    "test:headed": "node tests/puppeteer/run-tests.js --headed"
+  },
+  "author": "SentimentAnalysis Automation",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^23.4.1",
+    "dotenv": "^16.4.5"
+  }
+}

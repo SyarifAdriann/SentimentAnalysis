@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Airline Sentiment Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" integrity="sha512-oHDEc8Xed1oxW+X7dBDEzDfSUdifYEYVplpXglVYJAnCmvYz3/n6PvJ9P3UnIFmLJ7GkBbpdh80PCLdr5T8KQw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+    {% block head_extra %}{% endblock %}
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container site-header__inner">
+        <a class="brand" href="{{ url_for('main.index') }}">Airline Sentiment Intelligence</a>
+        <nav class="main-nav">
+          <a href="{{ url_for('main.index') }}" class="main-nav__link {% if request.endpoint == 'main.index' %}active{% endif %}">Predict</a>
+          <a href="{{ url_for('main.dashboard') }}" class="main-nav__link {% if request.endpoint == 'main.dashboard' %}active{% endif %}">Analytics</a>
+          <a href="{{ url_for('main.admin') }}" class="main-nav__link {% if request.endpoint == 'main.admin' %}active{% endif %}">Admin</a>
+        </nav>
+        <div class="site-header__actions">
+          {% if session.get('is_admin') %}
+            <span class="chip">Admin</span>
+            <a href="{{ url_for('main.logout') }}" class="btn btn-outline btn-small">Logout</a>
+          {% else %}
+            <a href="{{ url_for('main.admin') }}" class="btn btn-secondary btn-small">Admin Login</a>
+          {% endif %}
+        </div>
+      </div>
+    </header>
+
+    <main class="container content-container">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-wrapper">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <p>&copy; {{ 2025 }} Airline Sentiment Analytics Project</p>
+        <p class="muted">Built with Flask, scikit-learn, and Puppeteer.</p>
+      </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,428 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Predict Sentiment{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Twitter Airline Sentiment Analyzer</h1>
+    <p>Analyze sentiment of airline-related tweets with AI-powered predictions.</p>
+</div>
+
+<div class="container">
+    <div class="card">
+        <h2>Enter a Tweet</h2>
+        <form method="POST" action="{{ url_for('main.index') }}" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                {{ form.tweet_text.label }}
+                {{ form.tweet_text(class="form-control", rows=4, placeholder="Example: Flight delayed again! Terrible customer service.") }}
+                {% if form.tweet_text.errors %}
+                    <span class="error">{{ form.tweet_text.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.batch_file.label }}
+                {{ form.batch_file(class="form-control-file", accept=".csv") }}
+                <p class="form-help">Upload a CSV with a <code>tweet_text</code> column (optional <code>airline</code>). Leave blank to analyze the single tweet above.</p>
+                {% if form.batch_file.errors %}
+                    <span class="error">{{ form.batch_file.errors[0] }}</span>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.airline.label }}
+                {{ form.airline(class="form-control") }}
+            </div>
+
+            <button type="submit" class="btn btn-primary">Analyze Sentiment</button>
+        </form>
+    </div>
+
+    {% if prediction %}
+    <div class="card prediction-result">
+        <h2>Prediction Result</h2>
+        <div class="result-grid">
+            <div class="result-item">
+                <h3>Sentiment</h3>
+                <p class="sentiment-badge sentiment-{{ prediction.sentiment }}">
+                    {{ prediction.sentiment|upper }}
+                </p>
+            </div>
+
+            <div class="result-item">
+                <h3>Confidence</h3>
+                <p class="confidence-value">
+                    {% if prediction.confidence %}
+                        {{ (prediction.confidence * 100)|round(1) }}%
+                    {% else %}
+                        N/A
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        {% if prediction.reasoning %}
+        <div class="explanation-section">
+            <h3>Why This Prediction?</h3>
+            <p class="reasoning-text">{{ prediction.reasoning }}</p>
+
+            {% if prediction.top_features %}
+            <div class="features-list">
+                <h4>Key Words Detected:</h4>
+                <ul>
+                    {% for feature in prediction.top_features[:5] %}
+                    <li><code>{{ feature }}</code></li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {% if prediction.airline %}
+        <p class="airline-info"><strong>Airline:</strong> {{ prediction.airline }}</p>
+        {% endif %}
+
+        <p class="review-note">This prediction has been saved for admin review.</p>
+    </div>
+    {% endif %}
+
+    {% if batch_results %}
+    <div class="card batch-results">
+        <h2>Batch Predictions</h2>
+        <p class="help-text">Processed {{ batch_results|length }} tweets from the uploaded file.</p>
+        <div class="table-responsive">
+            <table class="data-table compact-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Tweet</th>
+                        <th>Sentiment</th>
+                        <th>Confidence</th>
+                        <th>Reasoning</th>
+                        <th>Highlights</th>
+                        <th>Airline</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in batch_results %}
+                    <tr>
+                        <td>{{ result.row_index }}</td>
+                        <td class="tweet-snippet">{{ result.text[:100] }}{% if result.text and result.text|length > 100 %}...{% endif %}</td>
+                        <td>
+                            <span class="sentiment-badge sentiment-{{ result.sentiment }}">
+                                {{ result.sentiment }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if result.confidence is not none %}
+                                {{ (result.confidence * 100)|round(1) }}%
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td class="reasoning-cell">{{ result.reasoning[:140] }}{% if result.reasoning and result.reasoning|length > 140 %}...{% endif %}</td>
+                        <td class="features-cell">
+                            {% if result.top_features %}
+                                {{ result.top_features[:3]|join(', ') }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{{ result.airline or '-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if recent_submissions %}
+    <div class="card">
+        <h2>Recent Predictions</h2>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tweet</th>
+                        <th>Predicted</th>
+                        <th>Confidence</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sub in recent_submissions %}
+                    <tr>
+                        <td class="tweet-snippet">{{ sub.tweet_text[:80] }}{% if sub.tweet_text and sub.tweet_text|length > 80 %}...{% endif %}</td>
+                        <td>
+                            <span class="sentiment-badge sentiment-{{ sub.predicted_sentiment }}">
+                                {{ sub.predicted_sentiment }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if sub.prediction_confidence is not none %}
+                                {{ (sub.prediction_confidence * 100)|round(1) }}%
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="status-badge status-{{ sub.review_status }}">
+                                {{ sub.review_status }}
+                            </span>
+                        </td>
+                        <td>{{ sub.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.hero {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.hero h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    color: #555;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.card {
+    background: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+.form-control-file {
+    width: 100%;
+    padding: 6px 0;
+    color: #333;
+}
+
+.form-help {
+    font-size: 0.85em;
+    color: #666;
+    margin-top: 6px;
+}
+
+.help-text {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.prediction-result {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+}
+
+.prediction-result h2,
+.prediction-result h3,
+.prediction-result h4 {
+    color: #fff;
+}
+
+.result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.result-item {
+    text-align: center;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.sentiment-badge {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.sentiment-negative {
+    background-color: #fee;
+    color: #a00;
+}
+
+.sentiment-neutral {
+    background-color: #ffc;
+    color: #660;
+}
+
+.sentiment-positive {
+    background-color: #efe;
+    color: #060;
+}
+
+.confidence-value {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.explanation-section {
+    margin-top: 30px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.reasoning-text {
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin: 15px 0;
+}
+
+.features-list ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.features-list li {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6px 14px;
+    border-radius: 16px;
+}
+
+.features-list code {
+    color: #fff;
+    font-family: 'Courier New', monospace;
+}
+
+.airline-info {
+    margin-top: 20px;
+    font-size: 1.1em;
+}
+
+.review-note {
+    margin-top: 15px;
+    font-style: italic;
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    text-align: left;
+}
+
+.compact-table th,
+.compact-table td {
+    padding: 8px;
+    font-size: 0.9em;
+}
+
+.batch-results .sentiment-badge {
+    font-size: 0.9em;
+    padding: 6px 12px;
+}
+
+.batch-results .table-responsive {
+    max-height: 420px;
+    overflow-y: auto;
+}
+
+.reasoning-cell {
+    max-width: 240px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+.features-cell {
+    max-width: 180px;
+    font-size: 0.85em;
+    color: #666;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.status-pending {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.status-approved {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.status-rejected {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.tweet-snippet {
+    max-width: 320px;
+}
+
+.error {
+    color: #dc3545;
+    font-size: 0.9em;
+}
+</style>
+{% endblock %}

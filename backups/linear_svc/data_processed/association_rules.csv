@@ -1,0 +1,26 @@
+antecedents,consequents,support,confidence,lift,leverage,conviction
+airline=American,sentiment=negative,0.21355415123120505,1.0,1.0,0.0,inf
+airline=Southwest,sentiment=negative,0.1292220527348006,1.0,1.0,0.0,inf
+airline=Delta,sentiment=negative,0.10405317062540859,1.0,1.0,0.0,inf
+airline=United,sentiment=negative,0.286881673567226,1.0,1.0,0.0,inf
+airline=US Airways,sentiment=negative,0.24656787971235564,1.0,1.0,0.0,inf
+"airline=United, reason=Flight Booking Problems",sentiment=negative,0.015689692743517107,1.0,1.0,0.0,inf
+"airline=United, reason=Lost Luggage",sentiment=negative,0.029309217694486817,1.0,1.0,0.0,inf
+reason=Flight Attendant Complaints,sentiment=negative,0.05240793201133145,1.0,1.0,0.0,inf
+reason=Customer Service Issue,sentiment=negative,0.3170625408585748,1.0,1.0,0.0,inf
+reason=Cancelled Flight,sentiment=negative,0.09228590106777075,1.0,1.0,0.0,inf
+reason=Can't Tell,sentiment=negative,0.12965787753323163,1.0,1.0,0.0,inf
+reason=Bad Flight,sentiment=negative,0.06319459577249946,1.0,1.0,0.0,inf
+airline=Virgin America,sentiment=negative,0.01972107212900414,1.0,1.0,0.0,inf
+reason=Flight Booking Problems,sentiment=negative,0.05763782959250381,1.0,1.0,0.0,inf
+"airline=American, reason=Late Flight",sentiment=negative,0.027130093702331663,1.0,1.0,0.0,inf
+"airline=American, reason=Customer Service Issue",sentiment=negative,0.0836783612987579,1.0,1.0,0.0,inf
+"airline=American, reason=Cancelled Flight",sentiment=negative,0.02680322510350839,1.0,1.0,0.0,inf
+"airline=American, reason=Can't Tell",sentiment=negative,0.02157332752233602,1.0,1.0,0.0,inf
+reason=longlines,sentiment=negative,0.019394203530180867,1.0,1.0,0.0,inf
+reason=Lost Luggage,sentiment=negative,0.07888428851601656,1.0,1.0,0.0,inf
+reason=Late Flight,sentiment=negative,0.18141207234691653,1.0,1.0,0.0,inf
+"airline=Delta, reason=Customer Service Issue",sentiment=negative,0.02168228372194378,1.0,1.0,0.0,inf
+"airline=Delta, reason=Late Flight",sentiment=negative,0.029309217694486817,1.0,1.0,0.0,inf
+"airline=American, reason=Lost Luggage",sentiment=negative,0.016234473741555896,1.0,1.0,0.0,inf
+"airline=Delta, reason=Can't Tell",sentiment=negative,0.02026585312704293,1.0,1.0,0.0,inf

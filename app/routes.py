@@ -259,6 +259,12 @@ def load_dashboard_context() -> Dict[str, Any]:
         "sentiment_html": url_for("static", filename="html/sentiment_distribution.html"),
     }
 
+    timeline_file = processed_dir / "timeline_daily.csv"
+    if timeline_file.exists():
+        df = pd.read_csv(timeline_file)
+        context["timeline_data"] = df.to_dict("records")
+
+
     context["top_airline"] = context["airline_volume"][0] if context["airline_volume"] else None
     context["top_negative_reason"] = context["negative_reasons"][0] if context["negative_reasons"] else None
     negative_summary = next((row for row in context["sentiment_summary"] if row.get("sentiment") == "negative"), None)

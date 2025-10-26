@@ -1,0 +1,36 @@
+<div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    <table class="w-full text-left">
+        <thead class="bg-slate-50 border-b border-slate-200">
+            <tr>
+                <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tweet</th>
+                <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Predicted</th>
+                <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Comment</th>
+                <th class="p-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Rejected</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+            {% if submissions.rejected %}
+                {% for submission in submissions.rejected %}
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="p-4 text-sm text-slate-700 max-w-sm">{{ submission.tweet_text }}</td>
+                    <td class="p-4">
+                        <span class="px-2 py-1 text-xs font-medium rounded-full 
+                            {% if submission.predicted_sentiment == 'positive' %} bg-green-100 text-green-700 
+                            {% elif submission.predicted_sentiment == 'negative' %} bg-red-100 text-red-700
+                            {% else %} bg-slate-100 text-slate-700 {% endif %}
+                        ">
+                            {{ submission.predicted_sentiment|upper }}
+                        </span>
+                    </td>
+                    <td class="p-4 text-sm text-slate-600">{{ submission.admin_comment or '-' }}</td>
+                    <td class="p-4 text-sm text-slate-600">{{ submission.updated_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="4" class="p-4 text-center text-slate-500">No rejected submissions.</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
